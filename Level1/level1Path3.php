@@ -1,6 +1,4 @@
 <?php
-// не обращайте на эту функцию внимания
-// она нужна для того чтобы правильно считать входные данные
 function readHttpLikeInput()
 {
     $f = fopen('php://stdin', 'r');
@@ -18,8 +16,38 @@ function readHttpLikeInput()
     return $store;
 }
 
+//--------------------------------------------------
 $contents = readHttpLikeInput();
 
+function outputHttpResponse($statuscode, $statusmessage, $headers, $body)
+{
+    echo 'HTTP/1.1 ' . $statuscode . ' ' . $statusmessage . "\n" .
+        'Date: ' . date('D\, d M Y G:i:s e') . "\n";
+    if ($headers != false) {
+        foreach ($headers as $key => $value) {
+            echo "{$key}: {$value}\n";
+        }
+    }
+    echo "\n\r";
+    echo $body;
+}
+
+function processHttpRequest($method, $uri, $headers, $body)
+{
+    if ($method != 'GET' or !stristr($uri, '?nums', false)) {
+        outputHttpResponse('400', 'Bad Request', $headers, $body);
+        return;
+    }
+
+    if (!stristr($uri, '/sum', false)) {
+        outputHttpResponse('404', 'Not Found', $headers, $body);
+        return;
+    }
+
+    outputHttpResponse('200', 'OK', $headers, $body);
+}
+
+//-------------------------------------------------------------------------
 function parseTcpStringAsHttpRequest($string)
 {
     return array(
@@ -115,5 +143,6 @@ function removeFirstChar($string)
     return $string;
 }
 
+
 $http = parseTcpStringAsHttpRequest($contents);
-echo(json_encode($http, JSON_PRETTY_PRINT));
+processHttpRequest($http["method"], $http["uri"], $http["headers"], $http["body"]);
