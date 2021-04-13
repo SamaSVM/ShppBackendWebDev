@@ -35,7 +35,9 @@ function parseTcpStringAsHttpRequest($string)
  */
 function getMethod($string)
 {
-    return stristr ( $string , ' ' , true );
+    $string = stristr ( $string , ' ' , true );
+    $string = removeUnnecessaryCharas($string);
+    return $string;
 }
 
 /*
@@ -44,9 +46,8 @@ function getMethod($string)
 function getUri($string)
 {
     $string = stristr ( $string , ' ' , false );
+    $string = removeFirstChar($string);
     $string = stristr ( $string , ' ' , true );
-    $string = deleteFirstChar($string);
-    $string = deleteLastChar($string);
     return $string;
 }
 
@@ -61,23 +62,23 @@ function getHeaders($string)
 
     $string = stristr($string, "\n", false);
     $string = stristr($string, "\n\r", true);
-    $string = deleteFirstChar($string);
-    $string = deleteLastChar($string);
+    $string = removeFirstChar($string);
+
     $result = array();
 
     while (strpos($string, ':') != false) {
         if(strpos($string, "\n") != false) {
             $substring = stristr($string, "\n", true);
-            $substring = deleteLastChar($substring);
+            $substring = removeUnnecessaryCharas($substring);
             $string = stristr($string, "\n", false);
-            $string = deleteFirstChar($string);
+            $string = removeFirstChar($string);
         } else {
             $substring = $string;
         }
 
         $key = stristr($substring, ':', true);
         $value = stristr($substring, ' ', false);
-        $value = deleteFirstChar($value);
+        $value = removeUnnecessaryCharas($value);
         $result[$key] = $value;
         if($string == $substring){
             break;
@@ -92,27 +93,24 @@ function getHeaders($string)
 function getBody($string)
 {
     $string = stristr($string, "\n\r", false);
-    $string = deleteFirstChar($string);
-    $string = deleteLastChar($string);
+    $string = removeUnnecessaryCharas($string);
     return $string;
+}
+
+/*
+ * A function that removes all spaces of tabs and the next line.
+ */
+function removeUnnecessaryCharas($string)
+{
+    return preg_replace('~\s+~s', '', $string );
 }
 
 /*
  * A function that removes the first character from a string.
  */
-function deleteFirstChar($string)
+function removeFirstChar($string)
 {
     $i = 0;
-    $string = substr_replace($string, '', $i, 1);
-    return $string;
-}
-
-/*
- * A function that removes the last character from a string.
- */
-function deleteLastChar($string)
-{
-    $i = strlen($string) - 1;
     $string = substr_replace($string, '', $i, 1);
     return $string;
 }
