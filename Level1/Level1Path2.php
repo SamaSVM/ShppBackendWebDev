@@ -44,7 +44,7 @@ function getMethod($string)
 function getUri($string)
 {
     $string = stristr ( $string , ' ' , false );
-    $string = stristr ( $string , "\n" , true );
+    $string = stristr ( $string , ' ' , true );
     $string = deleteFirstChar($string);
     $string = deleteLastChar($string);
     return $string;
