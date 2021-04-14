@@ -29,22 +29,41 @@ function outputHttpResponse($statuscode, $statusmessage, $headers, $body)
         }
     }
     echo "\n\r";
-    echo $body;
+    if($body != '') {
+        echo $body;
+    }
 }
 
 function processHttpRequest($method, $uri, $headers, $body)
 {
+    if(checkContentLength($headers) == false){
+        return;
+    }
     if ($method != 'GET' or !stristr($uri, '?nums', false)) {
         outputHttpResponse('400', 'Bad Request', $headers, $body);
+        echo "\n\r\n\rnot found";
+        echo "\n\r";
         return;
     }
 
     if (!stristr($uri, '/sum', false)) {
         outputHttpResponse('404', 'Not Found', $headers, $body);
+        echo "\n\r\n\rnot found";
+        echo "\n\r";
         return;
     }
 
     outputHttpResponse('200', 'OK', $headers, $body);
+    echo "\r\n" . array_sum(str_split($uri));
+    echo "\n\r";
+}
+
+function checkContentLength($headers, $body)
+{
+if($headers != false and (int) $headers['Content-Length'] == iconv_strlen($body)){
+    return true;
+}
+return false;
 }
 
 //-------------------------------------------------------------------------
