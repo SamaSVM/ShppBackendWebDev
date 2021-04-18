@@ -1,6 +1,6 @@
 <?php
 
-const FOLDER_PATH = 'C:\Users\Вячеслав\Documents\GitHub\ShppBackendWebDev\Level1';
+const FOLDER_PATH = 'C:\Users\samas\PhpstormProjects\ShppBackendWebDev\Level1';
 
 function readHttpLikeInput()
 {
@@ -76,13 +76,38 @@ function checkContentLength($headers, $body)
     return false;
 }
 
-function searchPassword($body)
+function checkLoginAndPassword($body)
 {
-    if(glob(FOLDER_PATH) == false){
+    if (glob(FOLDER_PATH) == false) {
         outputHttpResponse('500', 'Internal Server Error', false, $body);
     }
 
+    $login = get_login($body);
+    $password = get_password($body);
+
+    $text = file_get_contents(FOLDER_PATH . '\password.txt');
+
+    if(stripos($text, $login.':'.$password) != false){
+        outputHttpResponse('200', 'OK', false, '<h1 style="color:green">FOUND</h1>');
+    }
 }
+
+function getLogin($body)
+{
+    $login = stristr($body, '&', true);
+    $login = stristr($login, '=', false);
+    $login = removeFirstChar($login);
+    return $login;
+}
+
+function getPassword($body)
+{
+    $password = stristr($body, '&', false);
+    $password = stristr($password, '=', false);
+    $password = removeFirstChar($password);
+    return $password;
+}
+
 
 //-------------------------------------------------------------------------
 function parseTcpStringAsHttpRequest($string)
